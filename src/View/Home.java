@@ -8,11 +8,10 @@ package View;
 
 import Model.Model;
 import java.awt.Point;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -38,12 +37,13 @@ public class Home extends javax.swing.JFrame {
         med_tm = new MyTableModel(Model.med_table());
         // UI
         initComponents();
+        // set up two tables
         set_patient_table();
         set_med_table();
     }
     
     // set table model property
-    public void set_patient_table() {
+    private void set_patient_table() {
         patient_tm.addTableModelListener(
                 new TableModelListener() {
                     @Override
@@ -77,6 +77,7 @@ public class Home extends javax.swing.JFrame {
                     String id = (String) patient_table.getValueAt(row, 0);
                     NewRecord detail = new NewRecord();
                     detail.setTitle("病人详细信息");
+                    detail.yes.setText("确定");
                     detail.populate(Model.get_patient_info(Integer.parseInt(id)));
                     detail.setVisible(true);
                 }
@@ -84,7 +85,7 @@ public class Home extends javax.swing.JFrame {
         });
     }
     
-    public void set_med_table() {
+    private void set_med_table() {
         med_tm.addTableModelListener(
                 new TableModelListener() {
                     @Override
@@ -114,18 +115,21 @@ public class Home extends javax.swing.JFrame {
             public void mousePressed(MouseEvent me) {
                 if (me.getClickCount() == 2) {
                     Point p = me.getPoint();
-                    int row = patient_table.rowAtPoint(p);
-                    String id = (String) patient_table.getValueAt(row, 0);
-                    NewRecord detail = new NewRecord();
-                    detail.setTitle("病人详细信息");
-                    detail.populate(Model.get_patient_info(Integer.parseInt(id)));
+                    int row = med_table.rowAtPoint(p);
+                    String id = (String) med_table.getValueAt(row, 0);
+                    NewMedicine detail = new NewMedicine();
+                    detail.setTitle("药品详细信息");
+                    detail.save.setText("确定");
+                    detail.id = Integer.parseInt(id);
+                    detail.tm = med_tm;
+                    detail.populate(Model.get_medicine_info(Integer.parseInt(id)));
                     detail.setVisible(true);
                 }
             }
         });
     }
     
-    public void filter(boolean b) {
+    private void filter(boolean b) {
         RowFilter<MyTableModel, Object> rf = null;
         //If current expression doesn't parse, don't update.
         try {
@@ -145,7 +149,7 @@ public class Home extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jTabbedPane1 = new javax.swing.JTabbedPane();
+        tabbedPane = new javax.swing.JTabbedPane();
         jPanel2 = new javax.swing.JPanel();
         find_patient = new javax.swing.JTextField();
         clear = new javax.swing.JButton();
@@ -164,7 +168,7 @@ public class Home extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("诊所管理");
 
-        jTabbedPane1.setToolTipText("输入姓名");
+        tabbedPane.setToolTipText("");
 
         jPanel2.setToolTipText("");
 
@@ -235,7 +239,7 @@ public class Home extends javax.swing.JFrame {
 
         find_patient.getAccessibleContext().setAccessibleDescription("");
 
-        jTabbedPane1.addTab("就诊记录", jPanel2);
+        tabbedPane.addTab("就诊记录", jPanel2);
 
         find_med.setToolTipText("输入药品名");
 
@@ -302,20 +306,20 @@ public class Home extends javax.swing.JFrame {
                         .addGap(284, 284, 284))))
         );
 
-        jTabbedPane1.addTab("药品信息", jPanel3);
+        tabbedPane.addTab("药品信息", jPanel3);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1)
+            .addComponent(tabbedPane)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1)
+            .addComponent(tabbedPane)
         );
 
-        jTabbedPane1.getAccessibleContext().setAccessibleDescription("");
+        tabbedPane.getAccessibleContext().setAccessibleDescription("");
 
         pack();
         setLocationRelativeTo(null);
@@ -355,10 +359,29 @@ public class Home extends javax.swing.JFrame {
 
     private void new_medActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_new_medActionPerformed
         // TODO add your handling code here:
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                NewMedicine nm = new NewMedicine();
+                nm.tm = med_tm;
+                nm.setVisible(true);
+            }
+        });
     }//GEN-LAST:event_new_medActionPerformed
 
     private void delete_medActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete_medActionPerformed
         // TODO add your handling code here:
+        int row = med_table.getSelectedRow();
+        int id = Integer.parseInt((String)med_table.getValueAt(row, 0));
+        String name = (String)med_table.getValueAt(row, 1);
+        int reply = JOptionPane.showConfirmDialog(
+            null,
+            "确定删除 "+ name + " 的信息?",
+            "删除",
+            JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.YES_OPTION) {
+            Model.delete_medicine(id); // update db first
+            med_tm.delete(id);
+        }
     }//GEN-LAST:event_delete_medActionPerformed
 
     private void clear1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clear1ActionPerformed
@@ -408,10 +431,10 @@ public class Home extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable med_table;
     private javax.swing.JButton new_med;
     private javax.swing.JTable patient_table;
+    private javax.swing.JTabbedPane tabbedPane;
     // End of variables declaration//GEN-END:variables
 
 }

@@ -314,11 +314,14 @@
     </Container>
     <Component class="javax.swing.JButton" name="yes">
       <Properties>
-        <Property name="text" type="java.lang.String" value="&#x786e;&#x5b9a;"/>
+        <Property name="text" type="java.lang.String" value="&#x4fdd;&#x5b58;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="yesActionPerformed"/>
       </Events>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JButton" name="add">
       <Properties>

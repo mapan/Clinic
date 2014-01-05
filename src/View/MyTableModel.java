@@ -7,7 +7,7 @@
 package View;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 
@@ -34,6 +34,18 @@ public class MyTableModel extends AbstractTableModel {
         for(int i = 0;i < data.size();i++) {
             if(Integer.parseInt(data.get(i).get(0)) == id) {
                 data.remove(i);
+                break;
+            }
+        }
+        fireTableDataChanged();
+    }
+    
+    public void update(int id,String[] info) {
+        ArrayList<String> row = new ArrayList<String>(Arrays.asList(info));
+        row.add(0, id+"");
+        for(int i = 0;i < data.size();i++) {
+            if(Integer.parseInt(data.get(i).get(0)) == id) {
+                data.set(i, row);
                 break;
             }
         }

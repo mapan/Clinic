@@ -40,6 +40,13 @@ public class NewRecord extends javax.swing.JFrame {
         address.setText(info[6]); allergy.setText(info[7]);
         hist.setText(info[8]);
     }
+    
+    public String[] get_input() {
+        return new String[] {name.getText(),female.isSelected()?"女":"男",
+                                        age.getText(),weight.getText(),cell.getText(),
+                                        phone.getText(),address.getText(),allergy.getText(),
+                                        hist.getText()};
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -147,7 +154,7 @@ public class NewRecord extends javax.swing.JFrame {
             jTable1.getColumnModel().getColumn(2).setPreferredWidth(8);
         }
 
-        yes.setText("确定");
+        yes.setText("保存");
         yes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 yesActionPerformed(evt);
@@ -291,11 +298,7 @@ public class NewRecord extends javax.swing.JFrame {
     private void addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addActionPerformed
         // TODO add your handling code here:
         // get input from fields and insert
-        String[] info = new String[] {name.getText(),female.isSelected()?"女":"男",
-                                        age.getText(),weight.getText(),cell.getText(),
-                                        phone.getText(),address.getText(),allergy.getText(),
-                                        hist.getText()};
-        Model.new_patient_info(info);
+        Model.insert_patient(get_input());
         // get newly added patient info and insert into home table
         String[] in = new String[] {name.getText(),female.isSelected()?"女":"男",age.getText()};
         tm.insert(Model.get_new_patient(in));
@@ -346,6 +349,6 @@ public class NewRecord extends javax.swing.JFrame {
     private javax.swing.JTextField name;
     private javax.swing.JTextField phone;
     private javax.swing.JTextField weight;
-    private javax.swing.JButton yes;
+    public javax.swing.JButton yes;
     // End of variables declaration//GEN-END:variables
 }

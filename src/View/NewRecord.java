@@ -7,7 +7,14 @@
 package View;
 
 import Model.Model;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
 import javax.swing.ButtonGroup;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 /**
  *
@@ -15,17 +22,53 @@ import javax.swing.ButtonGroup;
  */
 public class NewRecord extends javax.swing.JFrame {
     
-    MyTableModel tm;
+    MyTableModel patient_tm,record_tm,m_tm;
+    int pid;
 
     /**
      * Creates new form Patient
      */
-    public NewRecord() {
+    public NewRecord(int pid) {
+        record_tm = new MyTableModel(Model.record_table(pid));
+        this.pid = pid;
+        // UI
         initComponents();
         // add radio button to group
         ButtonGroup group = new ButtonGroup();
         group.add(male);
         group.add(female);
+        // set table
+        set_record_table();
+    }
+    
+    private void set_record_table() {
+        record_tm.addTableModelListener(
+                new TableModelListener() {
+                    @Override
+                    public void tableChanged(TableModelEvent e) {
+                        record_table.setModel(record_tm);
+                    }
+                });
+        // double click to show the details
+        record_table.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent me) {
+                if (me.getClickCount() == 2) {
+                    Point p = me.getPoint();
+                    int row = record_table.rowAtPoint(p);
+                    String id = (String) record_table.getValueAt(row, 0);
+                    String date = (String) record_table.getValueAt(row, 1);
+                    String problem = (String) record_table.getValueAt(row, 2);
+                    String price = (String) record_table.getValueAt(row, 3);
+                    Prescription pre = new Prescription(Integer.parseInt(id));
+                    pre.populate(date, problem, price);
+                    pre.record_tm = record_tm;
+                    pre.total_price = Double.parseDouble(price);
+                    pre.m_tm = m_tm;
+                    pre.setTitle("处方详细信息");
+                    pre.setVisible(true);
+                }
+            }
+        });
     }
     
     // populate fields for details
@@ -77,19 +120,18 @@ public class NewRecord extends javax.swing.JFrame {
         allergy = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
         hist = new javax.swing.JTextArea();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
         yes = new javax.swing.JButton();
         add = new javax.swing.JButton();
         cancel = new javax.swing.JButton();
         cell = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        record_table = new javax.swing.JTable();
 
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("新建就诊记录");
 
         jLabel1.setText("姓名:");
-
-        name.setText("a");
 
         jLabel2.setText("性别:");
 
@@ -103,14 +145,6 @@ public class NewRecord extends javax.swing.JFrame {
         jLabel4.setText("家用电话:");
 
         jLabel5.setText("体重:");
-
-        age.setText("a");
-
-        weight.setText("a");
-
-        phone.setText("a");
-
-        address.setText("a");
 
         jLabel6.setText("地址:");
 
@@ -127,32 +161,6 @@ public class NewRecord extends javax.swing.JFrame {
         hist.setColumns(20);
         hist.setRows(5);
         jScrollPane2.setViewportView(hist);
-
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
-            },
-            new String [] {
-                "日期", "症状", "总价"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-        });
-        jScrollPane3.setViewportView(jTable1);
-        if (jTable1.getColumnModel().getColumnCount() > 0) {
-            jTable1.getColumnModel().getColumn(0).setPreferredWidth(15);
-            jTable1.getColumnModel().getColumn(1).setPreferredWidth(250);
-            jTable1.getColumnModel().getColumn(2).setPreferredWidth(8);
-        }
 
         yes.setText("保存");
         yes.addActionListener(new java.awt.event.ActionListener() {
@@ -175,9 +183,10 @@ public class NewRecord extends javax.swing.JFrame {
             }
         });
 
-        cell.setText("a");
-
         jLabel10.setText("手机:");
+
+        record_table.setModel(record_tm);
+        jScrollPane4.setViewportView(record_table);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -192,55 +201,55 @@ public class NewRecord extends javax.swing.JFrame {
                         .addComponent(cancel))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(12, 12, 12)
+                        .addComponent(jLabel9)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 502, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel9)
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(address, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel8)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel10)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(cell, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(phone, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(add)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel3)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(age, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jLabel5))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel1)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(name, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(55, 55, 55)
+                                        .addComponent(jLabel2)))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel6)
+                                        .addComponent(male)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(address, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel7)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel8)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel10)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(cell, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(jLabel4)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(phone, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(add)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(jLabel3)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(age, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addComponent(jLabel5))
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(jLabel1)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(name, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addGap(55, 55, 55)
-                                                .addComponent(jLabel2)))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(male)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(female))
-                                            .addComponent(weight, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE))))))
-                        .addGap(0, 7, Short.MAX_VALUE)))
+                                        .addComponent(female))
+                                    .addComponent(weight, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(0, 53, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane4)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -282,8 +291,8 @@ public class NewRecord extends javax.swing.JFrame {
                     .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(add))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(yes)
                     .addComponent(cancel))
@@ -297,18 +306,19 @@ public class NewRecord extends javax.swing.JFrame {
     
     private void addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addActionPerformed
         // TODO add your handling code here:
-        // get input from fields and insert
-        Model.insert_patient(get_input());
-        // get newly added patient info and insert into home table
-        String[] in = new String[] {name.getText(),female.isSelected()?"女":"男",age.getText()};
-        tm.insert(Model.get_new_patient(in));
-        if(this.getTitle().equals("a")) System.out.println("fsafasd");
+        if(this.getTitle().equals("新建就诊记录")) {
+            insert();
+        }
         /* Create and display the form */
-        /*java.awt.EventQueue.invokeLater(new Runnable() {
+        java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Prescription().setVisible(true);
+                Prescription p = new Prescription(0);
+                p.m_tm = m_tm;
+                p.pid = pid;
+                p.record_tm = record_tm;
+                p.setVisible(true);
             }
-        });*/
+        });
     }//GEN-LAST:event_addActionPerformed
 
     private void cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelActionPerformed
@@ -318,9 +328,32 @@ public class NewRecord extends javax.swing.JFrame {
 
     private void yesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yesActionPerformed
         // TODO add your handling code here:
-        setVisible(false);
+        if(pid == 0) {
+            insert();
+        }
+        else {
+            // compare current info to the db
+            String[] cur = get_input(),old = Model.get_patient_info(pid);
+            if(!Arrays.equals(cur, old)) {
+                Model.update_patient(cur, pid);
+                ArrayList<String> a = new ArrayList<String>();
+                a.add(pid+"");
+                a.add(cur[0]); a.add(cur[1]); a.add(cur[2]); a.add(cur[4]);
+                patient_tm.update(pid, a);
+            }
+        }
+        dispose();
     }//GEN-LAST:event_yesActionPerformed
-
+    
+    private void insert() {
+        // get input from fields and insert
+        Model.insert_patient(get_input());
+        // get newly added patient info and insert into home table
+        String[] in = new String[]{name.getText(), female.isSelected() ? "女" : "男", age.getText()};
+        ArrayList<String> row = Model.get_new_patient(in);
+        patient_tm.insert(row);
+        pid = Integer.parseInt(row.get(0));
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton add;
@@ -343,11 +376,11 @@ public class NewRecord extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JRadioButton male;
     private javax.swing.JTextField name;
     private javax.swing.JTextField phone;
+    private javax.swing.JTable record_table;
     private javax.swing.JTextField weight;
     public javax.swing.JButton yes;
     // End of variables declaration//GEN-END:variables

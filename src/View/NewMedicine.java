@@ -10,6 +10,11 @@ import Model.Model;
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import javax.swing.JOptionPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 /**
  *
@@ -28,6 +33,28 @@ public class NewMedicine extends javax.swing.JFrame {
         DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         String d = dateFormat.format(new Date());
         date.setText(d);
+        // action listen for purchase field
+        purchase.getDocument().addDocumentListener(
+                new DocumentListener() {
+                    public void changedUpdate(DocumentEvent e) {
+                        set_stock();
+                    }
+
+                    public void insertUpdate(DocumentEvent e) {
+                        set_stock();
+                    }
+
+                    public void removeUpdate(DocumentEvent e) {
+                        set_stock();
+                    }
+                });
+    }
+    
+    public void set_stock() {
+        String pur = purchase.getText(), con = consume.getText();
+        double p = pur.equals("")?0:Double.parseDouble(pur);
+        double c = con.equals("")?0:Double.parseDouble(con);
+        stock.setText(p-c+"");
     }
     
     // get input from form
@@ -80,42 +107,30 @@ public class NewMedicine extends javax.swing.JFrame {
         jButton2 = new javax.swing.JButton();
         date = new javax.swing.JTextField();
         jLabel15 = new javax.swing.JLabel();
+        add = new javax.swing.JButton();
 
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("新建药品");
 
         jLabel10.setText("售价:");
-
-        sell_price.setText("a");
-
-        name.setText("a");
 
         jLabel3.setText("规格:");
 
         jLabel1.setText("名称:");
 
-        unit.setText("a");
-
         jLabel11.setText("进货量:");
-
-        purchase.setText("a");
-
-        place.setText("a");
 
         jLabel4.setText("进价:");
 
         jLabel2.setText("产地:");
 
-        raw_price.setText("a");
-
         jLabel12.setText("消耗量:");
 
-        consume.setText("a");
+        consume.setText("0");
 
         jLabel13.setText("库存:");
 
-        stock.setText("a");
-
-        expire.setText("a");
+        stock.setText("0");
 
         jLabel14.setText("保质期:");
 
@@ -134,6 +149,13 @@ public class NewMedicine extends javax.swing.JFrame {
         });
 
         jLabel15.setText("进货日期:");
+
+        add.setText("+");
+        add.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -166,13 +188,13 @@ public class NewMedicine extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(consume, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(1, 1, 1)))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(place, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(place, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(22, 22, 22))
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(0, 0, Short.MAX_VALUE)
@@ -195,8 +217,9 @@ public class NewMedicine extends javax.swing.JFrame {
                                     .addGroup(layout.createSequentialGroup()
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(stock)))))
-                        .addGap(82, 82, 82)))
-                .addGap(22, 22, 22))
+                        .addGap(1, 1, 1)
+                        .addComponent(add, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(53, 53, 53))))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(save)
@@ -220,7 +243,8 @@ public class NewMedicine extends javax.swing.JFrame {
                         .addGap(83, 83, 83)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(purchase, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(add)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(23, 23, 23)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -244,12 +268,13 @@ public class NewMedicine extends javax.swing.JFrame {
                             .addComponent(stock, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(expire, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(date, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(expire, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(save)
@@ -269,16 +294,34 @@ public class NewMedicine extends javax.swing.JFrame {
             tm.insert(Model.get_new_medicine(info));
         }
         else {
-            Model.update_medicine(get_input(), id);
-            tm.update(id, get_input());
+            // compare current info to the db
+            String[] cur = get_input(),old = Model.get_medicine_info(id);
+            if(!Arrays.equals(cur, old)) {
+                Model.update_medicine(cur, id);
+                ArrayList<String> a = new ArrayList<String>();
+                a.add(id+"");
+                a.add(cur[0]); a.add(cur[1]); a.add(cur[2]); a.add(cur[4]);
+                a.add(cur[6]); a.add(cur[7]);
+                tm.update(id, a);
+            }
         }
-        setVisible(false);
+        dispose();
     }//GEN-LAST:event_saveActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
         dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addActionPerformed
+        // TODO add your handling code here:
+        String add = JOptionPane.showInputDialog("输入进货量:");
+        if ((add != null) && (add.length() > 0)) {
+            int p = Integer.parseInt(purchase.getText());
+            int a = Integer.parseInt(add);
+            purchase.setText(p+a+"");
+        }
+    }//GEN-LAST:event_addActionPerformed
 
     /**
      * @param args the command line arguments
@@ -293,7 +336,8 @@ public class NewMedicine extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField consume;
+    public javax.swing.JButton add;
+    public javax.swing.JTextField consume;
     private javax.swing.JTextField date;
     private javax.swing.JTextField expire;
     private javax.swing.JButton jButton2;
@@ -313,7 +357,7 @@ public class NewMedicine extends javax.swing.JFrame {
     private javax.swing.JTextField raw_price;
     public javax.swing.JButton save;
     private javax.swing.JTextField sell_price;
-    private javax.swing.JTextField stock;
+    public javax.swing.JTextField stock;
     private javax.swing.JTextField unit;
     // End of variables declaration//GEN-END:variables
 }

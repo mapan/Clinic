@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
-Sun Jan 05 13:26:46 EST 2014:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.9.1.0 - (1344872): instance a816c00e-0143-63a8-39d2-000006dbd778 
-on database directory /Users/panma/Library/Application Support/NetBeans/7.4/derby/Clinic  with class loader sun.misc.Launcher$AppClassLoader@23137792 
+Mon Jan 06 20:20:02 EST 2014:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.9.1.0 - (1344872): instance a816c00e-0143-6a48-f131-000006dbe1c8 
+on database directory /Users/panma/NetBeansProjects/Clinic/Clinic  with class loader sun.misc.Launcher$AppClassLoader@23137792 
 Loaded from file:/Applications/NetBeans/glassfish-4.0/javadb/lib/derby.jar
 java.vendor=Oracle Corporation
 java.runtime.version=1.7.0_45-b18

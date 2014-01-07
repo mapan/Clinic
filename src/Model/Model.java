@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  *
@@ -20,8 +21,27 @@ import java.util.ArrayList;
  */
 public class Model {
     
-    static String url = "jdbc:derby:/Users/panma/Library/"
-                        + "Application Support/NetBeans/7.4/derby/Clinic";
+    static String url = "jdbc:derby:Clinic";
+            //"jdbc:derby:/Users/panma/Library/"
+              //          + "Application Support/NetBeans/7.4/derby/Clinic";
+    
+    public static HashMap<String,String> map = new HashMap<String,String>();
+    
+    public static void map() {
+        map.put("NAME", "名字");
+        map.put("SEX", "性别");
+        map.put("AGE", "年龄");
+        map.put("CELL", "手机");
+        map.put("PLACE", "产地");
+        map.put("UNIT", "规格");
+        map.put("SELL_PRICE", "售价");
+        map.put("CONSUME", "消耗量");
+        map.put("STOCK", "库存");
+        map.put("DATE", "日期");
+        map.put("PROBLEM", "症状");
+        map.put("PRICE", "价格");
+        map.put("DOSE", "剂量");
+    }
     
     public static void close(Connection con,PreparedStatement st,ResultSet rs) {
         try {
@@ -147,6 +167,25 @@ public class Model {
         return info;
     }
     
+    public static void update_patient(String[] info,int id) {
+        Connection con = null;
+        PreparedStatement st = null;
+        String update = "UPDATE PATIENTS SET name=?,sex=?,age=?,weight=?,cell=?,phone=?,"
+                + "address=?,allergy=?,history=? WHERE id="+id;
+        try {
+            con = DriverManager.getConnection(url);
+            st = con.prepareStatement(update);
+            for (int i = 0; i < info.length; i++) {
+                st.setString(i+1, info[i]);
+            }
+            st.executeUpdate();
+        } catch(SQLException err) {
+            err.printStackTrace();
+        } finally {
+            close(con,st,null);
+        }
+    }
+    
     public static ArrayList med_table() {
         Connection con = null;
         PreparedStatement st = null;
@@ -197,7 +236,7 @@ public class Model {
         }
     }
     
-    // insert newly added medicine into the jtable
+    // get newly added medicine info
     public static ArrayList<String> get_new_medicine(String[] in) {
         Connection con = null;
         PreparedStatement st = null;
@@ -273,6 +312,239 @@ public class Model {
             st.executeUpdate();
         } catch(SQLException err) {
             err.printStackTrace();
+        } finally {
+            close(con,st,null);
+        }
+    }
+    
+    public static void update_stock(int mid,double dose) {
+        Connection con = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        String query = "SELECT consume,stock from MEDICINE WHERE id="+mid;
+        String update = "UPDATE MEDICINE SET consume=?,stock=? WHERE id="+mid;
+        try {
+            con = DriverManager.getConnection(url);
+            st = con.prepareStatement(query);
+            rs = st.executeQuery();
+            double consume = 0,stock = 0;
+            if(rs.next()) {
+                consume = Double.parseDouble(rs.getString(1))+dose;
+                stock = Double.parseDouble(rs.getString(2))-dose;
+            }
+            st = con.prepareStatement(update);
+            st.setString(1, consume+"");
+            st.setString(2, stock+"");
+            st.executeUpdate();
+        } catch(SQLException err) {
+            err.printStackTrace();
+        } finally {
+            close(con,st,null);
+        }
+    }
+        
+    // prescription table
+    public static ArrayList pre_table(int rid) {
+        Connection con = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
+        ArrayList result = new ArrayList();
+        try {
+            con = DriverManager.getConnection(url);
+            st = con.prepareStatement("SELECT name,place,unit,dose,price FROM "
+                    + "(SELECT * FROM PRESCRIPTION WHERE rid = ?)AS P "
+                    + "INNER JOIN MEDICINE ON P.mid = MEDICINE.id");
+            st.setInt(1, rid);
+            rs = st.executeQuery();
+            ResultSetMetaData meta = rs.getMetaData();
+            String[] col = new String[meta.getColumnCount()];
+            for(int i = 0;i < col.length;i++)
+                col[i] = meta.getColumnLabel(i+1);
+            ArrayList<String> row;
+            while(rs.next()) {
+                row = new ArrayList<String>();
+                for(int i = 0;i < col.length;i++)
+                    row.add(rs.getString(i+1));
+                data.add(row);
+            }
+            result.add(data);
+            result.add(col);
+        } catch(SQLException err) {
+            err.printStackTrace();
+        } finally {
+            close(con,st,rs);
+        }
+        return result;
+    }
+    
+    public static int insert_record(String[] info,int pid) {
+        String table = "RECORDS(pid,date,problem,price)";
+        Connection con = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        int id = 0;
+        try {
+            con = DriverManager.getConnection(url);
+            st = con.prepareStatement("INSERT INTO " + table + " VALUES (?, ?, ?, ?)");
+            st.setInt(1, pid);
+            for (int i = 0; i < info.length; i++) {
+                st.setString(i+2, info[i]);
+            }
+            st.executeUpdate();
+            st = con.prepareStatement("SELECT id FROM RECORDS WHERE pid=? and date=? and problem=?");
+            st.setInt(1, pid);
+            for (int i = 0; i < info.length - 1; i++) {
+                st.setString(i+2, info[i]);
+            }
+            rs = st.executeQuery();
+            if(rs.next()) 
+                id = rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(con,st,rs);
+        }
+        return id;
+    }
+    
+    public static void insert_prescription(int rid,int mid,String dose,String price) {
+        String table = "PRESCRIPTION(rid,mid,dose,price)";
+        Connection con = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        try {
+            con = DriverManager.getConnection(url);
+            st = con.prepareStatement("INSERT INTO " + table + " VALUES (?, ?, ?, ?)");
+            st.setInt(1, rid);
+            st.setInt(2, mid);
+            st.setString(3, dose);
+            st.setString(4, price);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(con,st,null);
+        }
+    }
+    
+    public static ArrayList record_table(int pid) {
+        Connection con = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
+        ArrayList result = new ArrayList();
+        try {
+            con = DriverManager.getConnection(url);
+            st = con.prepareStatement("SELECT id,date,problem,price FROM RECORDS WHERE pid = " + pid);
+            rs = st.executeQuery();
+            ResultSetMetaData meta = rs.getMetaData();
+            String[] col = new String[meta.getColumnCount()];
+            for(int i = 0;i < col.length;i++)
+                col[i] = meta.getColumnLabel(i+1);
+            ArrayList<String> row;
+            while(rs.next()) {
+                row = new ArrayList<String>();
+                for(int i = 0;i < col.length;i++)
+                    row.add(rs.getString(i+1));
+                data.add(row);
+            }
+            result.add(data);
+            result.add(col);
+        } catch(SQLException err) {
+            err.printStackTrace();
+        } finally {
+            close(con,st,rs);
+        }
+        return result;
+    }
+    
+    public static void update_record_price(int rid,String price) {
+        String update = "UPDATE RECORDS SET price=? WHERE id="+rid;
+        Connection con = null;
+        PreparedStatement st = null;
+        try {
+            con = DriverManager.getConnection(url);
+            st = con.prepareStatement(update);
+            st.setString(1, price);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(con,st,null);
+        }
+    }
+    
+    public static void update_record(String[] info,int rid) {
+        String update = "UPDATE RECORDS SET date=?,problem=?,price=? WHERE id="+rid;
+        Connection con = null;
+        PreparedStatement st = null;
+        try {
+            con = DriverManager.getConnection(url);
+            st = con.prepareStatement(update);
+            st.setString(1, info[0]);
+            st.setString(2, info[1]);
+            st.setString(3, info[2]);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(con,st,null);
+        }
+    }
+    
+    public static String[] get_record_info(int id) {
+        String[] info = new String[3];
+        Connection con = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        try {
+            con = DriverManager.getConnection(url);
+            st = con.prepareStatement("SELECT date,problem,price FROM RECORDS WHERE id = " + id);
+            rs = st.executeQuery();
+            if(rs.next()) {
+                for(int i = 0;i < info.length;i++) {
+                    info[i] = rs.getString(i+1);
+                }
+            }
+        } catch(SQLException err) {
+            err.printStackTrace();
+        } finally {
+            close(con,st,rs);
+        }
+        return info;
+    }
+    
+    public static void delete_re_pre(int pid) {
+        String update = "DELETE FROM (SELECT * FROM ("
+                + "(SELECT id FROM RECORDS WHERE pid="+pid
+                + ") AS R INNER JOIN PRESCRIPTION ON R.id=PRESCRIPTION.rid))";
+        Connection con = null;
+        PreparedStatement st = null;
+        try {
+            con = DriverManager.getConnection(url);
+            st = con.prepareStatement(update);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(con,st,null);
+        }
+    }
+    
+    public static void delete() {
+        String update = "delete from records";
+        Connection con = null;
+        PreparedStatement st = null;
+        try {
+            con = DriverManager.getConnection(url);
+            st = con.prepareStatement(update);
+            st.executeUpdate();
+            update = "delete from prescription";
+            st = con.prepareStatement(update);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         } finally {
             close(con,st,null);
         }

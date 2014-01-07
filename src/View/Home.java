@@ -32,6 +32,7 @@ public class Home extends javax.swing.JFrame {
      * Creates new form Home
      */
     public Home() {
+        Model.map();
         // set table model
         patient_tm = new MyTableModel(Model.patient_table());
         med_tm = new MyTableModel(Model.med_table());
@@ -75,9 +76,11 @@ public class Home extends javax.swing.JFrame {
                     Point p = me.getPoint();
                     int row = patient_table.rowAtPoint(p);
                     String id = (String) patient_table.getValueAt(row, 0);
-                    NewRecord detail = new NewRecord();
+                    NewRecord detail = new NewRecord(Integer.parseInt(id));
                     detail.setTitle("病人详细信息");
                     detail.yes.setText("确定");
+                    detail.patient_tm = patient_tm;
+                    detail.m_tm = med_tm;
                     detail.populate(Model.get_patient_info(Integer.parseInt(id)));
                     detail.setVisible(true);
                 }
@@ -329,8 +332,9 @@ public class Home extends javax.swing.JFrame {
         // TODO add your handling code here:
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                NewRecord nr = new NewRecord();
-                nr.tm = patient_tm;
+                NewRecord nr = new NewRecord(0);
+                nr.patient_tm = patient_tm;
+                nr.m_tm = med_tm;
                 nr.setVisible(true);
             }
         });
@@ -363,6 +367,9 @@ public class Home extends javax.swing.JFrame {
             public void run() {
                 NewMedicine nm = new NewMedicine();
                 nm.tm = med_tm;
+                nm.consume.setEnabled(false);
+                nm.stock.setEnabled(false);
+                nm.add.setEnabled(false);
                 nm.setVisible(true);
             }
         });
@@ -380,6 +387,7 @@ public class Home extends javax.swing.JFrame {
             JOptionPane.YES_NO_OPTION);
         if (reply == JOptionPane.YES_OPTION) {
             Model.delete_medicine(id); // update db first
+            Model.delete_re_pre(id);
             med_tm.delete(id);
         }
     }//GEN-LAST:event_delete_medActionPerformed

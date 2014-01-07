@@ -6,8 +6,8 @@
 
 package View;
 
+import Model.Model;
 import java.util.ArrayList;
-import java.util.Arrays;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 
@@ -40,12 +40,10 @@ public class MyTableModel extends AbstractTableModel {
         fireTableDataChanged();
     }
     
-    public void update(int id,String[] info) {
-        ArrayList<String> row = new ArrayList<String>(Arrays.asList(info));
-        row.add(0, id+"");
+    public void update(int id,ArrayList<String> cur) {
         for(int i = 0;i < data.size();i++) {
             if(Integer.parseInt(data.get(i).get(0)) == id) {
-                data.set(i, row);
+                data.set(i, cur);
                 break;
             }
         }
@@ -64,7 +62,7 @@ public class MyTableModel extends AbstractTableModel {
 
     @Override
     public String getColumnName(int columnIndex) {
-        return col[columnIndex];
+        return Model.map.get(col[columnIndex]);
     }
 
     @Override
@@ -84,6 +82,8 @@ public class MyTableModel extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+        data.get(rowIndex).set(columnIndex,(String) aValue);
+        this.fireTableDataChanged();
     }
 
     @Override

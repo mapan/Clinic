@@ -52,8 +52,8 @@ public class NewMedicine extends javax.swing.JFrame {
     
     public void set_stock() {
         String pur = purchase.getText(), con = consume.getText();
-        double p = pur.equals("")?0:Double.parseDouble(pur);
-        double c = con.equals("")?0:Double.parseDouble(con);
+        int p = pur.equals("")?0:Integer.parseInt(pur);
+        int c = con.equals("")?0:Integer.parseInt(con);
         stock.setText(p-c+"");
     }
     

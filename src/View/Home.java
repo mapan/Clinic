@@ -11,6 +11,7 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Comparator;
 import javax.swing.JOptionPane;
 import javax.swing.RowFilter;
 import javax.swing.event.DocumentEvent;
@@ -54,6 +55,7 @@ public class Home extends javax.swing.JFrame {
                 });
         // set filter for table
         patient_sorter = new TableRowSorter<MyTableModel>(patient_tm);
+        patient_sorter.setComparator(3, Model.int_cmp);
         patient_table.setRowSorter(patient_sorter);
         find_patient.getDocument().addDocumentListener(
                 new DocumentListener() {
@@ -99,6 +101,9 @@ public class Home extends javax.swing.JFrame {
         // set filter for table
         med_sorter = new TableRowSorter<MyTableModel>(med_tm);
         med_table.setRowSorter(med_sorter);
+        med_sorter.setComparator(4, Model.double_cmp);
+        med_sorter.setComparator(5, Model.int_cmp);
+        med_sorter.setComparator(6, Model.int_cmp);
         find_med.getDocument().addDocumentListener(
                 new DocumentListener() {
                     public void changedUpdate(DocumentEvent e) {

@@ -64,6 +64,9 @@ public class Prescription extends javax.swing.JFrame {
     
     private void set_med_table() {
         sorter = new TableRowSorter<MyTableModel>(med_tm);
+        sorter.setComparator(4, Model.double_cmp);
+        sorter.setComparator(5, Model.int_cmp);
+        sorter.setComparator(6, Model.int_cmp);
         med_table.setRowSorter(sorter);
         find.getDocument().addDocumentListener(
                 new DocumentListener() {
@@ -99,7 +102,7 @@ public class Prescription extends javax.swing.JFrame {
                             rid = Model.insert_record(info, pid);
                         }
                         // insert new prescription
-                        double price = sell_price*(Double.parseDouble(dose));
+                        double price = sell_price*(Integer.parseInt(dose));
                         total_price += price;
                         // update total price label
                         total.setText(total_price+"");
@@ -111,10 +114,10 @@ public class Prescription extends javax.swing.JFrame {
                         data.add(dose); data.add(price+"");
                         pre_tm.insert(data);
                         // update med stock and consume in db
-                        Model.update_stock(mid, Double.parseDouble(dose));
+                        Model.update_stock(mid, Integer.parseInt(dose));
                         // update stock in the med table
-                        double c = Double.parseDouble(consume)+Double.parseDouble(dose);
-                        double s = Double.parseDouble(stock)-Double.parseDouble(dose);
+                        int c = Integer.parseInt(consume)+Integer.parseInt(dose);
+                        int s = Integer.parseInt(stock)-Integer.parseInt(dose);
                         med_tm.setValueAt(c+"", row, 5);
                         med_tm.setValueAt(s+"", row, 6);
                         m_tm.setValueAt(c+"", row, 5);

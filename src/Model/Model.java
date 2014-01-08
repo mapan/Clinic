@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
 /**
@@ -25,9 +26,25 @@ public class Model {
             //"jdbc:derby:/Users/panma/Library/"
               //          + "Application Support/NetBeans/7.4/derby/Clinic";
     
+    public static Comparator<String> int_cmp = new Comparator<String>() {
+        public int compare(String s1, String s2) {
+            int a = Integer.parseInt(s1);
+            int b = Integer.parseInt(s2);
+            return a - b;
+        }
+    };
+    public static Comparator<String> double_cmp = new Comparator<String>() {
+        public int compare(String s1, String s2) {
+            Double a = Double.parseDouble(s1);
+            Double b = Double.parseDouble(s2);
+            return a.compareTo(b);
+        }
+    };
+    
     public static HashMap<String,String> map = new HashMap<String,String>();
     
     public static void map() {
+        map.put("ID", "ID");
         map.put("NAME", "名字");
         map.put("SEX", "性别");
         map.put("AGE", "年龄");
@@ -317,7 +334,7 @@ public class Model {
         }
     }
     
-    public static void update_stock(int mid,double dose) {
+    public static void update_stock(int mid,int dose) {
         Connection con = null;
         PreparedStatement st = null;
         ResultSet rs = null;
@@ -327,10 +344,10 @@ public class Model {
             con = DriverManager.getConnection(url);
             st = con.prepareStatement(query);
             rs = st.executeQuery();
-            double consume = 0,stock = 0;
+            int consume = 0,stock = 0;
             if(rs.next()) {
-                consume = Double.parseDouble(rs.getString(1))+dose;
-                stock = Double.parseDouble(rs.getString(2))-dose;
+                consume = Integer.parseInt(rs.getString(1))+dose;
+                stock = Integer.parseInt(rs.getString(2))-dose;
             }
             st = con.prepareStatement(update);
             st.setString(1, consume+"");

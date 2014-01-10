@@ -106,10 +106,11 @@ public class Prescription extends javax.swing.JFrame {
                         total_price += price;
                         // update total price label
                         total.setText(total_price+"");
-                        Model.insert_prescription(rid, mid, dose, price+"");
+                        int pid = Model.insert_prescription(rid, mid, dose, price+"");
                         // get newly added prescription info and add into pre table
                         String[] info = Model.get_medicine_info(mid);
                         ArrayList<String> data = new ArrayList<String>();
+                        data.add(pid+"");
                         data.add(info[0]); data.add(info[1]); data.add(info[2]);
                         data.add(dose); data.add(price+"");
                         pre_tm.insert(data);
@@ -170,6 +171,7 @@ public class Prescription extends javax.swing.JFrame {
         date = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         total = new javax.swing.JLabel();
+        delete = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("新建处方");
@@ -212,6 +214,13 @@ public class Prescription extends javax.swing.JFrame {
 
         total.setText("0");
 
+        delete.setText("删除");
+        delete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -229,9 +238,15 @@ public class Prescription extends javax.swing.JFrame {
                                 .addComponent(l1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                            .addGap(16, 16, 16)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(16, 16, 16)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(delete)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 241, Short.MAX_VALUE)
+                                .addComponent(save)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(cancel))
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                 .addGroup(layout.createSequentialGroup()
                                     .addComponent(date4)
@@ -245,12 +260,7 @@ public class Prescription extends javax.swing.JFrame {
                                     .addGap(56, 56, 56)
                                     .addComponent(find, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
-                                .addComponent(jScrollPane2)))
-                        .addGroup(layout.createSequentialGroup()
-                            .addGap(322, 322, 322)
-                            .addComponent(save)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(cancel))))
+                                .addComponent(jScrollPane2)))))
                 .addContainerGap(18, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -284,7 +294,8 @@ public class Prescription extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(save)
-                    .addComponent(cancel))
+                    .addComponent(cancel)
+                    .addComponent(delete))
                 .addContainerGap())
         );
 
@@ -324,12 +335,31 @@ public class Prescription extends javax.swing.JFrame {
         dispose();
     }//GEN-LAST:event_cancelActionPerformed
 
+    private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
+        // TODO add your handling code here:
+        int row = pre_table.getSelectedRow();
+        int pid = Integer.parseInt((String) pre_table.getValueAt(row, 0));
+        double price = Double.parseDouble((String) pre_table.getValueAt(row, 5));
+        int reply = JOptionPane.showConfirmDialog(
+                null,
+                "确定删除?",
+                "删除处方",
+                JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.YES_OPTION) {
+            Model.delete_prescription(pid); // update db first
+            pre_tm.delete(pid);
+            total_price -= price;
+            total.setText(total_price + "");
+        }
+    }//GEN-LAST:event_deleteActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancel;
     private javax.swing.JTextField date;
     private javax.swing.JLabel date3;
     private javax.swing.JLabel date4;
+    private javax.swing.JButton delete;
     private javax.swing.JTextField find;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;

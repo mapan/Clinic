@@ -24,7 +24,7 @@ public class Model {
     
     static String url = "jdbc:derby:Clinic";
             //"jdbc:derby:/Users/panma/Library/"
-              //          + "Application Support/NetBeans/7.4/derby/Clinic";
+             //          + "Application Support/NetBeans/7.4/derby/Clinic";
     
     public static Comparator<String> int_cmp = new Comparator<String>() {
         public int compare(String s1, String s2) {
@@ -369,7 +369,7 @@ public class Model {
         ArrayList result = new ArrayList();
         try {
             con = DriverManager.getConnection(url);
-            st = con.prepareStatement("SELECT name,place,unit,dose,price FROM "
+            st = con.prepareStatement("SELECT P.id,name,place,unit,dose,price FROM "
                     + "(SELECT * FROM PRESCRIPTION WHERE rid = ?)AS P "
                     + "INNER JOIN MEDICINE ON P.mid = MEDICINE.id");
             st.setInt(1, rid);
@@ -425,11 +425,12 @@ public class Model {
         return id;
     }
     
-    public static void insert_prescription(int rid,int mid,String dose,String price) {
+    public static int insert_prescription(int rid,int mid,String dose,String price) {
         String table = "PRESCRIPTION(rid,mid,dose,price)";
         Connection con = null;
         PreparedStatement st = null;
         ResultSet rs = null;
+        int id = 0;
         try {
             con = DriverManager.getConnection(url);
             st = con.prepareStatement("INSERT INTO " + table + " VALUES (?, ?, ?, ?)");
@@ -438,11 +439,20 @@ public class Model {
             st.setString(3, dose);
             st.setString(4, price);
             st.executeUpdate();
+            st = con.prepareStatement("SELECT id FROM PRESCRIPTION WHERE rid=? and mid=? and dose=? and price=?");
+            st.setInt(1, rid);
+            st.setInt(2, mid);
+            st.setString(3, dose);
+            st.setString(4, price);
+            rs = st.executeQuery();
+            if(rs.next()) 
+                id = rs.getInt(1);
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             close(con,st,null);
         }
+        return id;
     }
     
     public static ArrayList record_table(int pid) {
@@ -541,6 +551,20 @@ public class Model {
         try {
             con = DriverManager.getConnection(url);
             st = con.prepareStatement(update);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(con,st,null);
+        }
+    }
+    
+    public static void delete_prescription(int id) {
+        Connection con = null;
+        PreparedStatement st = null;
+        try {
+            con = DriverManager.getConnection(url);
+            st = con.prepareStatement("DELETE FROM PRESCRIPTION WHERE id = " + id);
             st.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
